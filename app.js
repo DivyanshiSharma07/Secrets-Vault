@@ -2,8 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const md5 = require("md5");        //level 3 hashing
 const app = express();
+const bcrypt = require("bcrypt");    //level 4 security
+const saltRounds = 10;
 
 
 app.set('view engine', 'ejs');
@@ -40,31 +41,48 @@ app.get("/login",function(req,res){
     res.render("register");
  });
 
- app.post("/register",async function(req, res) {     
-    try {
+ app.post("/register", async function(req, res) {
+  try {
+    bcrypt.hash(req.body.password, saltRounds, async function(err, hash) {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+        return;
+      }
+
       const newUser = new User({
         email: req.body.username,
-        password: md5(req.body.password)
+        password: hash
       });
-  
-      await newUser.save();         
-      res.render("secrets");     //level 1 ///this page is here so that user can only access after register
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Internal Server Error");
-    }
-  });
+
+      try {
+        await newUser.save();
+        res.render("secrets"); // Level 1 - This page is only accessible after registering
+      } catch (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 app.post("/login",async function(req, res){
     const username = req.body.username;
-    const password = md5(req.body.password);
+    const password = req.body.password;
 
     try {
         const founduser = await User.findOne({ email: username });
         if (founduser) {
-           if(founduser.password === password){
-            res.render("secrets");
-           }
+          bcrypt.compare(password, founduser.password, function(err, result) {
+            if (result === true) {
+              res.render("secrets");
+            } else {
+              res.status(401).send("Invalid password");
+            }
+          });
         } else {
           res.status(404).send("user not found");
         }
