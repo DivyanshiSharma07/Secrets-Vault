@@ -66,7 +66,8 @@ if(req.isAuthenticated()){
 });
 
 app.post("/register", async function(req, res) {
-  User.register(req.body.username, req.body.password, function(err, user) {
+  const newUser = new User({ username: req.body.username });
+  User.register(newUser, req.body.password, function(err, user) {
     if (err) {
       console.log(err);
       res.redirect("/register");
