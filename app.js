@@ -3,15 +3,24 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
 const app = express();
-const bcrypt = require("bcrypt");    //level 4 security
-const saltRounds = 10;
+const session = require("express-session");   //step 1
+const passport = require("passport");         //step 2
+const passportLocalMongoose = require("passport-local-mongoose");    //step 3
 
 
 app.set('view engine', 'ejs');
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({
     extended: true
-  }));
+  })); 
+app.use(session({         //1
+  secret:"mylittlesecret",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());    //2
+app.use(passport.session());   //3
+
 const mongooseOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -24,11 +33,18 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String
   });
-  
+   
+userSchema.plugin(passportLocalMongoose);  //4  //this is we gonna use to hash and salt the password
+
+const User = new mongoose.model("User", userSchema);   
+
+passport.use(User.createStrategy());       //5
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
-  const User = new mongoose.model("User", userSchema);   
-
+ 
 app.get("/",function(req,res){
    res.render("home");
 });
@@ -37,60 +53,41 @@ app.get("/login",function(req,res){
     res.render("login");
  });
 
- app.get("/register",function(req,res){
+app.get("/register",function(req,res){
     res.render("register");
  });
+ 
+app.get("/secrets",function(req,res){
+if(req.isAuthenticated()){
+  res.render("secrets");
+}else(
+  res.redirect("/login")
+)
+});
 
- app.post("/register", async function(req, res) {
-  try {
-    bcrypt.hash(req.body.password, saltRounds, async function(err, hash) {
-      if (err) {
-        console.error(err);
-        res.status(500).send("Internal Server Error");
-        return;
-      }
-
-      const newUser = new User({
-        email: req.body.username,
-        password: hash
+app.post("/register", async function(req, res) {
+  User.register(req.body.username, req.body.password, function(err, user) {
+    if (err) {
+      console.log(err);
+      res.redirect("/register");
+    } else {
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/secrets");
       });
+    }
+  });
+});
+ 
 
-      try {
-        await newUser.save();
-        res.render("secrets"); // Level 1 - This page is only accessible after registering
-      } catch (err) {
-        console.error(err);
-        res.status(500).send("Internal Server Error");
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  }
+app.post("/login", passport.authenticate("local"), function(req, res) {
+  res.redirect("/secrets");
 });
 
-app.post("/login",async function(req, res){
-    const username = req.body.username;
-    const password = req.body.password;
-
-    try {
-        const founduser = await User.findOne({ email: username });
-        if (founduser) {
-          bcrypt.compare(password, founduser.password, function(err, result) {
-            if (result === true) {
-              res.render("secrets");
-            } else {
-              res.status(401).send("Invalid password");
-            }
-          });
-        } else {
-          res.status(404).send("user not found");
-        }
-      } catch (err) {
-        console.error(err);
-        res.status(500).send("Internal Server Error");
-      }
+app.get("/logout", function(req, res) {
+  req.logout(function() {});
+  res.redirect("/");
 });
+
 
 
 app.listen(3000, function() {
