@@ -14,6 +14,12 @@ Secrets Vault is a secure web application that allows users to store and share t
 - Passport.js: An authentication middleware for Node.js, used to implement Google OAuth authentication and manage user sessions.
 - EJS (Embedded JavaScript): A templating engine that allows for dynamic content generation and rendering on the server side, facilitating the integration of server-side logic with the presentation layer.
 
+## Future Enhancements
+While Secrets Vault currently provides secure secret storage and level 6 authentication using Google, future enhancements may include:
+- User Profile Customization: Allowing users to personalize their profiles and customize their experience within the application.
+- Sharing and Permissions: Implementing features that enable users to share secrets with specific individuals or groups and define access permissions.
+- Additional Authentication Options: Adding support for additional authentication providers, such as Facebook or Twitter, to provide users with more choices for accessing their accounts
+
 Protect and manage your secrets with ease and confidence using Secrets Vault. Your secrets are safe with us! 🔐✨
 
 
