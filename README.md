@@ -1,6 +1,11 @@
 # Secrets-Vault
 Secrets Vault is a secure web application that allows users to store and share their secrets with an added layer of authentication. With level 6 authentication using Google, your secrets remain protected and accessible only to authorized users. Built with MongoDB, Express.js, Passport.js, and EJS, Secrets Vault provides a robust and seamless user experience.
 
+![Screenshot 2024-06-15 at 3 18 20 AM](https://github.com/DivyanshiSharma07/Secrets-Vault/assets/127393402/f5c68bbf-b91a-422a-9cdb-83d00fe3e300)
+![Screenshot 2024-06-15 at 3 18 27 AM](https://github.com/DivyanshiSharma07/Secrets-Vault/assets/127393402/dd76a901-c3a6-4e5f-a96f-be9c286c547f)
+![Screenshot 2024-06-15 at 3 18 34 AM](https://github.com/DivyanshiSharma07/Secrets-Vault/assets/127393402/cab65e34-8edc-436d-ac64-d2e676dc0453)
+
+
 ## Key Features
 - Level 6 Authentication: Secrets Vault implements level 6 authentication, utilizing Google OAuth to ensure secure access to user accounts. This authentication mechanism adds an extra layer of protection to your secrets.
 - Seamless Integration with MongoDB: Secrets Vault integrates MongoDB, a powerful NoSQL database, to store and retrieve user account information and secrets. This ensures efficient data management and enables scalability as the user base grows.
